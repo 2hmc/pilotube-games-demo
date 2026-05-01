@@ -72,10 +72,10 @@ tabs.forEach(t => t.addEventListener('click', () => {
   Object.values(games).forEach(g => g.classList.remove('active'));
   activeTab = t.dataset.tab;
   games[activeTab].classList.add('active');
-  // resize canvas of active game
-  if (activeTab === 'stacker') StackerGame.resize();
-  if (activeTab === 'jump') JumpGame.resize();
-  if (activeTab === 'tiles') TilesGame.resize();
+  // start active game (each switch = fresh start)
+  if (activeTab === 'stacker') StackerGame.start();
+  if (activeTab === 'jump') JumpGame.start();
+  if (activeTab === 'tiles') TilesGame.start();
 }));
 
 const LS = {
