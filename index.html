@@ -34,6 +34,7 @@
     <div class="tab active" data-tab="stacker">PiloStacker</div>
     <div class="tab" data-tab="jump">PiloJump</div>
     <div class="tab" data-tab="tiles">PiloTiles</div>
+    <div class="tab" data-tab="fall">PiloFall</div>
   </div>
 
   <div class="game active" id="game-stacker">
@@ -59,6 +60,14 @@
       <div class="hint">黒タイルをタップ / 白を踏むとアウト</div>
     </div>
   </div>
+
+  <div class="game" id="game-fall">
+    <div class="header"><span class="name">PiloFall</span><span class="scores">スコア <b id="f-score">0</b> / Best <b id="f-best">0</b></span></div>
+    <div class="stage"><canvas id="cv-fall"></canvas>
+      <div class="overlay" id="ov-fall"><h2>GAME OVER</h2><div class="score">スコア: <span id="f-final">0</span></div><button class="btn" onclick="FallGame.start()">Restart</button></div>
+      <div class="hint">画面左右タップで自機移動 / 落下物を避ける</div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -76,6 +85,7 @@ tabs.forEach(t => t.addEventListener('click', () => {
   if (activeTab === 'stacker') StackerGame.start();
   if (activeTab === 'jump') JumpGame.start();
   if (activeTab === 'tiles') TilesGame.start();
+  if (activeTab === 'fall') FallGame.start();
 }));
 
 const LS = {
@@ -364,6 +374,79 @@ const TilesGame = (() => {
   cv.addEventListener('touchstart', e=>{e.preventDefault();handleTap(e);},{passive:false});
   cv.addEventListener('mousedown', e=>{e.preventDefault();handleTap(e);});
   window.addEventListener('resize', ()=>{if(activeTab==='tiles')resize();});
+  return {start, resize};
+})();
+
+// ===== PiloFall =====
+const FallGame = (() => {
+  const cv = document.getElementById('cv-fall');
+  const ov = document.getElementById('ov-fall');
+  const scoreEl = document.getElementById('f-score');
+  const bestEl = document.getElementById('f-best');
+  const finalEl = document.getElementById('f-final');
+  let W=0,H=0,ctx=null;
+  let player; // {x,y,r}
+  let obstacles=[]; // {x,y,w,h,vy}
+  let score=0,best=0,running=false,raf=0,spawnTimer=0,speedMul=1;
+  function resize(){const f=fitCanvas(cv);W=f.w;H=f.h;ctx=f.ctx;}
+  function start(){
+    resize();
+    score=0;speedMul=1;spawnTimer=0;
+    bestEl.textContent=(best=LS.get('fall_best'));
+    scoreEl.textContent=0;
+    player={x:W/2,y:H-50,r:18};
+    obstacles=[];
+    ov.classList.remove('show');
+    running=true;
+    cancelAnimationFrame(raf);loop();
+  }
+  function gameover(){running=false;finalEl.textContent=score;ov.classList.add('show');}
+  function loop(){
+    if(!ctx)return;
+    ctx.fillStyle='#0b0e14';ctx.fillRect(0,0,W,H);
+    // spawn
+    spawnTimer--;
+    if(spawnTimer<=0){
+      const w=30+Math.random()*60;
+      obstacles.push({x:Math.random()*(W-w),y:-30,w:w,h:18+Math.random()*14,vy:2.5*speedMul});
+      spawnTimer=Math.max(20,55-speedMul*8);
+    }
+    // update
+    obstacles.forEach(o=>o.y+=o.vy);
+    obstacles = obstacles.filter(o=>{
+      if(o.y>H+30){score++;scoreEl.textContent=score;return false;}
+      return true;
+    });
+    // collide
+    for(const o of obstacles){
+      if(player.x+player.r>o.x && player.x-player.r<o.x+o.w &&
+         player.y+player.r>o.y && player.y-player.r<o.y+o.h){
+        if(score>best){best=score;LS.set('fall_best',best);bestEl.textContent=best;}
+        gameover();return;
+      }
+    }
+    // difficulty up
+    speedMul = 1 + score/30;
+    // draw obstacles
+    ctx.fillStyle='#ff5c5c';
+    obstacles.forEach(o=>ctx.fillRect(o.x,o.y,o.w,o.h));
+    // draw player
+    ctx.fillStyle='#4ea8ff';
+    ctx.beginPath();ctx.arc(player.x,player.y,player.r,0,Math.PI*2);ctx.fill();
+    raf=requestAnimationFrame(loop);
+  }
+  function handleTap(e){
+    if(!running)return;
+    const rect=cv.getBoundingClientRect();
+    const t=e.touches?e.touches[0]:e;
+    const x=t.clientX-rect.left;
+    // move player towards tap
+    player.x = Math.max(player.r, Math.min(W-player.r, x));
+  }
+  cv.addEventListener('touchstart', e=>{e.preventDefault();handleTap(e);},{passive:false});
+  cv.addEventListener('touchmove', e=>{e.preventDefault();handleTap(e);},{passive:false});
+  cv.addEventListener('mousedown', e=>{e.preventDefault();handleTap(e);});
+  window.addEventListener('resize', ()=>{if(activeTab==='fall')resize();});
   return {start, resize};
 })();
 
