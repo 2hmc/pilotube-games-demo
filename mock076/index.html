@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLT-NEW-076 v2 Mock — Dark Mode + Error Modal + UI Unify</title>
+<style>
+/* ==========================================================
+   PLT-NEW-076 spec v2 §11 token 準拠 self-contained mock
+   Light / Dark トグル右上、主要ページ4種抽出表示
+   ========================================================== */
+
+:root {
+  --color-brand-primary: #DC2626;
+  --color-brand-primary-hover: #B91C1C;
+  --color-brand-primary-active: #991B1B;
+  --color-success: #16A34A;
+  --color-warning: #EA580C;
+  --color-error: #DC2626;
+  --color-info: #6B7280;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #F9FAFB;
+  --color-border: #E5E7EB;
+  --color-text: #111827;
+  --color-text-strong: #000000;
+  --color-text-muted: #6B7280;
+  --color-placeholder: #9CA3AF;
+  --color-helper-text: #6B7280;
+  --content-max: 1280px;
+  --content-narrow: 48rem;
+  --btn-h-sm: 36px;
+  --btn-h-md: 44px;
+  --btn-h-lg: 56px;
+  --modal-overlay: rgba(0,0,0,.4);
+}
+
+html.dark {
+  --color-brand-primary: #CC3333;
+  --color-brand-primary-hover: #CC0000;
+  --color-brand-primary-active: #990000;
+  --color-success: #22C55E;
+  --color-warning: #FB923C;
+  --color-error: #CC3333;
+  --color-info: #9CA3AF;
+  --color-surface: #1F1F1F;
+  --color-surface-elevated: #333333;
+  --color-border: #666666;
+  --color-text: #CCCCCC;
+  --color-text-strong: #FFFFFF;
+  --color-text-muted: #999999;
+  --color-placeholder: #999999;
+  --color-helper-text: #999999;
+  --color-secondary-text: #FFCCCC;
+  --color-secondary-hover-bg: #330000;
+  --modal-overlay: rgba(0,0,0,.6);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: background .2s, color .2s;
+}
+
+/* ===== Top toolbar ===== */
+.toolbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--color-surface-elevated);
+  border-bottom: 1px solid var(--color-border);
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+}
+.toolbar h1 {
+  font-size: 1rem; margin: 0; font-weight: 700;
+  color: var(--color-text-strong);
+}
+.toolbar .right { display: flex; gap: 8px; align-items: center; }
+.mode-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 36px; padding: 0 12px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+.mode-toggle:hover { background: var(--color-surface); }
+
+/* ===== Layout ===== */
+.container {
+  max-width: var(--content-max);
+  margin: 0;
+  padding: 24px 16px;
+}
+.section {
+  margin-bottom: 48px;
+  padding: 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-strong);
+  margin: 0 0 8px 0;
+}
+.section-sub {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0 0 24px 0;
+}
+.helper {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-helper-text);
+}
+
+/* ===== Buttons (spec v2 §11) ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  height: var(--btn-h-md);
+  min-width: 88px;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.btn-sm { height: var(--btn-h-sm); font-size: 0.875rem; padding: 0 14px; }
+.btn-lg { height: var(--btn-h-lg); font-size: 1rem; padding: 0 28px; }
+@media (max-width: 768px) {
+  .btn-sm { height: var(--btn-h-md); } /* SP は 44px 強制 */
+}
+
+.btn-primary {
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+  color: #FFFFFF;
+}
+.btn-primary:hover { background: var(--color-brand-primary-hover); border-color: var(--color-brand-primary-hover); }
+.btn-primary:active { background: var(--color-brand-primary-active); }
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--color-brand-primary);
+  color: var(--color-brand-primary);
+}
+html.dark .btn-secondary { color: var(--color-secondary-text); }
+.btn-secondary:hover {
+  background: rgba(220,38,38,.08);
+}
+html.dark .btn-secondary:hover {
+  background: var(--color-secondary-hover-bg);
+  color: #FFFFFF;
+}
+
+.btn-tertiary {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+.btn-tertiary:hover { background: var(--color-surface-elevated); }
+
+.btn-disabled, .btn:disabled {
+  opacity: 0.5; cursor: not-allowed;
+}
+
+/* ===== Form ===== */
+.field { margin-bottom: 16px; }
+.field-label {
+  display: block; font-size: 0.875rem; font-weight: 600;
+  color: var(--color-text-strong); margin-bottom: 6px;
+}
+.input, .textarea, .select {
+  width: 100%;
+  height: var(--btn-h-md);
+  padding: 0 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-family: inherit;
+}
+html.dark .input, html.dark .textarea, html.dark .select {
+  background: var(--color-surface-elevated);
+}
+.textarea { height: auto; padding: 10px 12px; min-height: 80px; }
+.input:focus, .textarea:focus, .select:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px rgba(220,38,38,.15);
+}
+.input::placeholder, .textarea::placeholder { color: var(--color-placeholder); }
+
+/* Custom Radio / Checkbox (#29) */
+.choice {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 0; cursor: pointer;
+  font-size: 0.9375rem; color: var(--color-text);
+}
+.choice input { display: none; }
+.choice .marker {
+  width: 18px; height: 18px;
+  border: 2px solid var(--color-border);
+  background: transparent;
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all .12s;
+}
+.choice.radio .marker { border-radius: 50%; }
+.choice.checkbox .marker { border-radius: 4px; }
+.choice input:checked + .marker {
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+}
+.choice.radio input:checked + .marker::after {
+  content: ""; width: 6px; height: 6px; border-radius: 50%; background: #FFFFFF;
+}
+.choice.checkbox input:checked + .marker::after {
+  content: ""; width: 5px; height: 9px;
+  border-right: 2px solid #FFFFFF; border-bottom: 2px solid #FFFFFF;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+.choice:hover .marker { border-color: var(--color-brand-primary); }
+
+/* ===== Alerts / Banners ===== */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  margin-bottom: 12px;
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.alert-error {
+  background: rgba(220,38,38,.08);
+  border: 1px solid rgba(220,38,38,.3);
+  color: var(--color-error);
+}
+html.dark .alert-error { background: rgba(204,51,51,.15); border-color: rgba(204,51,51,.5); }
+.alert-warning {
+  background: rgba(234,88,12,.08);
+  border: 1px solid rgba(234,88,12,.3);
+  color: var(--color-warning);
+}
+.alert-info {
+  background: rgba(107,114,128,.1);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+.alert-success {
+  background: rgba(22,163,74,.08);
+  border: 1px solid rgba(22,163,74,.3);
+  color: var(--color-success);
+}
+
+/* ===== Modal (spec v2 §4.2.1) ===== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: var(--modal-overlay);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+  padding: 16px;
+}
+.modal-overlay.hidden { display: none; }
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  min-width: 320px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0,0,0,.2);
+}
+@media (min-width: 768px) {
+  .modal { min-width: 480px; }
+}
+html.dark .modal {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-border);
+}
+.modal-body { padding: 24px; }
+.modal-title {
+  font-size: 1.125rem; font-weight: 700;
+  margin: 0 0 8px 0;
+  color: var(--color-text-strong);
+}
+.modal-text { margin: 0 0 20px 0; color: var(--color-text); font-size: 0.9375rem; }
+.modal-actions {
+  display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;
+}
+
+/* ===== Footer (Q5 全頁強制) ===== */
+.footer {
+  margin-top: 64px;
+  padding: 32px 16px;
+  background: var(--color-surface-elevated);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+.footer a { color: var(--color-text-muted); margin: 0 8px; text-decoration: none; }
+.footer a:hover { color: var(--color-brand-primary); text-decoration: underline; }
+
+/* ===== Page samples ===== */
+.page-sample {
+  padding: 16px;
+  background: var(--color-surface-elevated);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.page-sample h3 { margin: 0 0 12px 0; font-size: 1rem; color: var(--color-text-strong); }
+
+.h1 { font-size: 1.875rem; margin: 0 0 12px 0; color: var(--color-text-strong); }
+@media (min-width: 768px) { .h1 { font-size: 2.25rem; } }
+
+.token-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 12px; }
+.swatch { padding: 12px 8px; border-radius: 6px; font-size: 0.75rem; text-align: center; border: 1px solid var(--color-border); }
+.diff-badge {
+  display: inline-block; padding: 2px 8px;
+  background: var(--color-brand-primary); color: #FFFFFF;
+  font-size: 0.7rem; border-radius: 999px; font-weight: 600;
+  margin-left: 6px;
+}
+.legend { font-size: 0.8rem; color: var(--color-text-muted); margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>PLT-NEW-076 v2 Mock — Dark + Modal + UI Unify</h1>
+  <div class="right">
+    <button class="mode-toggle" id="modeToggle" onclick="toggleMode()">
+      <span id="modeIcon">🌙</span><span id="modeLabel">Dark</span>
+    </button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ============ 1. design tokens 差分 ============ -->
+  <section class="section">
+    <h2 class="section-title">1. Design Tokens(spec v2 §11)<span class="diff-badge">PR1 適用済</span></h2>
+    <p class="section-sub">CSS variables(brand / semantic / surface / text)を Light / Dark で切替。Tailwind v4 `@theme inline` 連携想定。</p>
+    <div class="token-grid">
+      <div class="swatch" style="background:var(--color-brand-primary);color:#fff;">brand-primary</div>
+      <div class="swatch" style="background:var(--color-brand-primary-hover);color:#fff;">primary-hover</div>
+      <div class="swatch" style="background:var(--color-success);color:#fff;">success</div>
+      <div class="swatch" style="background:var(--color-warning);color:#fff;">warning</div>
+      <div class="swatch" style="background:var(--color-error);color:#fff;">error</div>
+      <div class="swatch" style="background:var(--color-info);color:#fff;">info(青完全削除)</div>
+      <div class="swatch">surface</div>
+      <div class="swatch" style="background:var(--color-surface-elevated);">surface-elevated</div>
+    </div>
+    <p class="legend">※ Light/Dark で値が切り替わる。Dark は #CC3333 / #FFCCCC / #333333 / #666666 系(ハマさん指定)。</p>
+  </section>
+
+  <!-- ============ 2. ボタン階層 ============ -->
+  <section class="section">
+    <h2 class="section-title">2. Button(青完全削除 + min 44px + outline)<span class="diff-badge">Critical C3/C5</span></h2>
+    <p class="section-sub">青 button 35件全置換、ダーク白ボタン廃止 → outline(transparent + 赤枠 + #FFCCCC 文字)。SP min 44px 強制。</p>
+
+    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+      <button class="btn btn-primary">Primary CTA</button>
+      <button class="btn btn-secondary">Secondary(outline)</button>
+      <button class="btn btn-tertiary">Tertiary</button>
+      <button class="btn btn-primary btn-sm">Small</button>
+      <button class="btn btn-primary btn-lg">Large CTA</button>
+      <button class="btn btn-primary" disabled>Disabled</button>
+    </div>
+    <p class="legend">PC: 36 / 44 / 56px の3階層、SP: 全 button 44px 強制(tap target、AC12)</p>
+  </section>
+
+  <!-- ============ 3. フォーム要素 ============ -->
+  <section class="section">
+    <h2 class="section-title">3. Form Elements(ダーク完全対応 + Radio/Checkbox カスタム)<span class="diff-badge">Medium M1/M2</span></h2>
+    <p class="section-sub">Input/Textarea/Select はダーク時 #333333 / #666666 / #CCCCCC、focus #CC3333。Radio/Checkbox はブラウザデフォルト廃止、赤系カスタム描画。</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+      <div>
+        <div class="field">
+          <label class="field-label">Email<span class="helper">(半角英数)</span></label>
+          <input class="input" type="email" placeholder="example@pilotube.com">
+        </div>
+        <div class="field">
+          <label class="field-label">プラン選択</label>
+          <select class="select">
+            <option>Free</option>
+            <option>Standard</option>
+            <option>Pro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">メッセージ<span class="helper">(任意)</span></label>
+          <textarea class="textarea" placeholder="ご質問・ご要望をお書きください"></textarea>
+        </div>
+      </div>
+      <div>
+        <div class="field">
+          <label class="field-label">利用目的</label>
+          <label class="choice radio"><input type="radio" name="g1" checked><span class="marker"></span>個人利用</label>
+          <label class="choice radio"><input type="radio" name="g1"><span class="marker"></span>法人利用</label>
+          <label class="choice radio"><input type="radio" name="g1"><span class="marker"></span>その他</label>
+        </div>
+        <div class="field">
+          <label class="field-label">通知設定<span class="helper">(複数選択可)</span></label>
+          <label class="choice checkbox"><input type="checkbox" checked><span class="marker"></span>メール通知</label>
+          <label class="choice checkbox"><input type="checkbox"><span class="marker"></span>プッシュ通知</label>
+          <label class="choice checkbox"><input type="checkbox"><span class="marker"></span>キャンペーン情報</label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. Alert / Helper ============ -->
+  <section class="section">
+    <h2 class="section-title">4. Alert / Helper(yellow 廃止 / semantic 4系統)<span class="diff-badge">High H1 / Medium</span></h2>
+    <p class="section-sub">warn は orange 一本化(yellow 全廃止)、info は灰系(青完全削除)。</p>
+
+    <div class="alert alert-error">⚠ クレジットが不足しています。プランをアップグレードしてください。</div>
+    <div class="alert alert-warning">! 残クレジット 3 件。継続利用にはチャージが必要です。</div>
+    <div class="alert alert-success">✓ 設定を保存しました。</div>
+    <div class="alert alert-info">i ヒント<span class="helper">(半角括弧で統一)</span> — HelperHint コンポーネントで全箇所統一</div>
+  </section>
+
+  <!-- ============ 5. Modal / ConfirmDelete ============ -->
+  <section class="section">
+    <h2 class="section-title">5. Modal 統一(Error / Confirm / ConfirmDelete)<span class="diff-badge">Critical C1/C2</span></h2>
+    <p class="section-sub">17モーダル全件を共通基盤に集約、`alert()`/`confirm()` 全廃。min 320(SP)/480(md+)、max-height 90vh、overflow-y auto。</p>
+
+    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+      <button class="btn btn-tertiary" onclick="showModal('errorModal')">ErrorModal を開く</button>
+      <button class="btn btn-tertiary" onclick="showModal('confirmModal')">ConfirmModal を開く</button>
+      <button class="btn btn-tertiary" onclick="showModal('deleteModal')">ConfirmDeleteModal を開く</button>
+    </div>
+  </section>
+
+  <!-- ============ 6. ページサンプル抜粋 ============ -->
+  <section class="section">
+    <h2 class="section-title">6. 主要ページ抜粋(content-max 単軸統一)<span class="diff-badge">PR2b 適用済</span></h2>
+    <p class="section-sub">spec v2 では 2軸方針だったが、ハマさん指示で max-w-screen-2xl 単軸統一に確定(AC4 改訂)。Hero 全幅は例外。</p>
+
+    <!-- Top -->
+    <div class="page-sample">
+      <h3>/(top)</h3>
+      <h1 class="h1">YouTube サムネ生成 AI<span class="helper">(ベータ)</span></h1>
+      <p>動画タイトルから AI が高品質サムネイルを生成。クリック率向上を即体感。</p>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button class="btn btn-primary btn-lg">無料ではじめる</button>
+        <button class="btn btn-secondary btn-lg">料金プラン</button>
+      </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="page-sample">
+      <h3>/pricing</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+        <div style="border:1px solid var(--color-border); padding:16px; border-radius:8px;">
+          <strong>Free</strong>
+          <p style="font-size:1.5rem; margin:8px 0;">¥0<span style="font-size:0.8rem; color:var(--color-text-muted);">/月</span></p>
+          <button class="btn btn-tertiary" style="width:100%;">現在のプラン</button>
+        </div>
+        <div style="border:2px solid var(--color-brand-primary); padding:16px; border-radius:8px;">
+          <strong>Standard</strong>
+          <p style="font-size:1.5rem; margin:8px 0;">¥1,480<span style="font-size:0.8rem; color:var(--color-text-muted);">/月</span></p>
+          <button class="btn btn-primary" style="width:100%;">アップグレード</button>
+        </div>
+        <div style="border:1px solid var(--color-border); padding:16px; border-radius:8px;">
+          <strong>Pro</strong>
+          <p style="font-size:1.5rem; margin:8px 0;">¥3,980<span style="font-size:0.8rem; color:var(--color-text-muted);">/月</span></p>
+          <button class="btn btn-secondary" style="width:100%;">プラン変更</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login -->
+    <div class="page-sample">
+      <h3>/login</h3>
+      <div style="max-width: 360px;">
+        <div class="field">
+          <label class="field-label">メールアドレス</label>
+          <input class="input" type="email" placeholder="example@mail.com">
+        </div>
+        <div class="field">
+          <label class="field-label">パスワード</label>
+          <input class="input" type="password">
+        </div>
+        <button class="btn btn-primary" style="width:100%;">ログイン</button>
+        <p style="text-align:center; margin-top:12px; font-size:0.875rem;">
+          <span style="color:var(--color-text-muted);">アカウントをお持ちでない方は</span>
+          <a href="#" style="color:var(--color-brand-primary);">新規登録</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Legal -->
+    <div class="page-sample">
+      <h3>/legal/commercial-transactions(LP/legal 系)</h3>
+      <p style="font-size:0.9375rem;">
+        特定商取引法に基づく表記。販売事業者・運営責任者・所在地・連絡先・販売価格・支払方法・引渡時期・返品・キャンセル等を記載。
+        <span class="helper">(法令で定められた事項)</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 7. 段階分割案サマリ ============ -->
+  <section class="section">
+    <h2 class="section-title">7. launch 5/13 までの段階分割</h2>
+    <ul style="line-height:1.8;">
+      <li><strong>PR3-Critical-A</strong>(5/3 目標): alert/confirm 全廃 + ConfirmDeleteModal 新規(2.8h)</li>
+      <li><strong>PR3-Critical-B</strong>(5/6 目標): 青 button 削除 + ダーク白ボタン廃止(2.7h)</li>
+      <li><strong>PR3-Critical-C</strong>(5/8 目標): Footer 全頁強制(layout.tsx 抜き上げ)(1.3h)</li>
+      <li><strong>PR3-Critical-D</strong>(5/12 目標): Phase B 本番ダーク巡回 + ハマさん視認 + hotfix(1h+)</li>
+      <li>(launch 後)PR4-High / PR5-Medium で残対応(yellow→orange、ErrorModal、17モーダル移行、tap44、フォント階層、赤2軸 等)</li>
+    </ul>
+  </section>
+
+</div>
+
+<!-- ===== Modals ===== -->
+<div class="modal-overlay hidden" id="errorModal" onclick="if(event.target===this) closeModal('errorModal')">
+  <div class="modal">
+    <div class="modal-body">
+      <h3 class="modal-title">エラー</h3>
+      <p class="modal-text">クレジットが不足しています。プランをアップグレードするか、追加クレジットを購入してください。</p>
+      <div class="modal-actions">
+        <button class="btn btn-tertiary" onclick="closeModal('errorModal')">閉じる</button>
+        <button class="btn btn-primary" onclick="closeModal('errorModal')">プラン確認</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="confirmModal" onclick="if(event.target===this) closeModal('confirmModal')">
+  <div class="modal">
+    <div class="modal-body">
+      <h3 class="modal-title">プラン変更の確認</h3>
+      <p class="modal-text">Standard プランへアップグレードします。次回請求日から ¥1,480/月 が課金されます。よろしいですか?</p>
+      <div class="modal-actions">
+        <button class="btn btn-tertiary" onclick="closeModal('confirmModal')">キャンセル</button>
+        <button class="btn btn-primary" onclick="closeModal('confirmModal')">変更する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="deleteModal" onclick="if(event.target===this) closeModal('deleteModal')">
+  <div class="modal">
+    <div class="modal-body">
+      <h3 class="modal-title" style="color:var(--color-error);">削除の確認</h3>
+      <p class="modal-text">この履歴を削除します。削除後は復元できません。本当に削除してよろしいですか?</p>
+      <div class="modal-actions">
+        <button class="btn btn-tertiary" onclick="closeModal('deleteModal')">キャンセル</button>
+        <button class="btn btn-primary" onclick="closeModal('deleteModal')">削除する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Footer(Q5 全頁強制) ===== -->
+<footer class="footer">
+  <div>
+    <a href="#">利用規約</a>
+    <a href="#">プライバシーポリシー</a>
+    <a href="#">特定商取引法</a>
+    <a href="#">外部送信</a>
+    <a href="#">お問い合わせ</a>
+  </div>
+  <p style="margin-top:12px;">© 2026 Hilarious Media Company / PiloTube</p>
+</footer>
+
+<script>
+function toggleMode() {
+  const html = document.documentElement;
+  html.classList.toggle('dark');
+  const dark = html.classList.contains('dark');
+  document.getElementById('modeIcon').textContent = dark ? '☀️' : '🌙';
+  document.getElementById('modeLabel').textContent = dark ? 'Light' : 'Dark';
+  try { localStorage.setItem('plt076-mode', dark ? 'dark' : 'light'); } catch(e) {}
+}
+function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
+});
+try {
+  if (localStorage.getItem('plt076-mode') === 'dark') toggleMode();
+} catch(e) {}
+</script>
+
+</body>
+</html>
