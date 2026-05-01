@@ -73,7 +73,7 @@
 <script>
 // ===== Tab switch =====
 const tabs = document.querySelectorAll('.tab');
-const games = {stacker:document.getElementById('game-stacker'),jump:document.getElementById('game-jump'),tiles:document.getElementById('game-tiles')};
+const games = {stacker:document.getElementById('game-stacker'),jump:document.getElementById('game-jump'),tiles:document.getElementById('game-tiles'),fall:document.getElementById('game-fall')};
 let activeTab = 'stacker';
 tabs.forEach(t => t.addEventListener('click', () => {
   tabs.forEach(x => x.classList.remove('active'));
