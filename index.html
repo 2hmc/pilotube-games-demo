@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>PiloTube Mini Games Demo</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+  html,body{height:100%;width:100%;overflow:hidden;background:#0b0e14;color:#e6e6e6;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif}
+  #app{display:flex;flex-direction:column;height:100vh;height:100dvh;width:100vw}
+  .tabs{display:flex;background:#11151c;border-bottom:1px solid #1f2530}
+  .tab{flex:1;padding:14px 4px;text-align:center;font-size:13px;font-weight:600;color:#7a8696;cursor:pointer}
+  .tab.active{color:#fff;background:#1a2030;border-bottom:2px solid #4ea8ff}
+  .header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#11151c;font-size:13px}
+  .header .name{color:#4ea8ff;font-weight:700}
+  .header .scores{display:flex;gap:14px;color:#cfd6e0}
+  .header .scores b{color:#fff}
+  .stage{flex:1;position:relative;overflow:hidden;background:#0b0e14}
+  canvas{display:block;width:100%;height:100%;touch-action:none}
+  .overlay{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;align-items:center;background:rgba(8,11,17,.85);z-index:10;text-align:center;padding:20px}
+  .overlay.show{display:flex}
+  .overlay h2{font-size:28px;margin-bottom:10px}
+  .overlay .score{font-size:18px;color:#cfd6e0;margin-bottom:20px}
+  .btn{background:#4ea8ff;color:#fff;border:none;padding:14px 32px;border-radius:24px;font-size:16px;font-weight:700;cursor:pointer}
+  .btn:active{background:#3a8fe6}
+  .game{display:none;position:absolute;inset:0;flex-direction:column}
+  .game.active{display:flex}
+  .hint{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:11px;color:#5a6678;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="tabs">
+    <div class="tab active" data-tab="stacker">PiloStacker</div>
+    <div class="tab" data-tab="jump">PiloJump</div>
+    <div class="tab" data-tab="tiles">PiloTiles</div>
+  </div>
+
+  <div class="game active" id="game-stacker">
+    <div class="header"><span class="name">PiloStacker</span><span class="scores">段数 <b id="s-score">0</b> / Best <b id="s-best">0</b></span></div>
+    <div class="stage"><canvas id="cv-stacker"></canvas>
+      <div class="overlay" id="ov-stacker"><h2>GAME OVER</h2><div class="score">段数: <span id="s-final">0</span></div><button class="btn" onclick="StackerGame.start()">Restart</button></div>
+      <div class="hint">画面タップでブロック停止</div>
+    </div>
+  </div>
+
+  <div class="game" id="game-jump">
+    <div class="header"><span class="name">PiloJump</span><span class="scores">高さ <b id="j-score">0</b> / Best <b id="j-best">0</b></span></div>
+    <div class="stage"><canvas id="cv-jump"></canvas>
+      <div class="overlay" id="ov-jump"><h2>GAME OVER</h2><div class="score">高さ: <span id="j-final">0</span></div><button class="btn" onclick="JumpGame.start()">Restart</button></div>
+      <div class="hint">画面左右タップで移動</div>
+    </div>
+  </div>
+
+  <div class="game" id="game-tiles">
+    <div class="header"><span class="name">PiloTiles</span><span class="scores">スコア <b id="t-score">0</b> / Best <b id="t-best">0</b></span></div>
+    <div class="stage"><canvas id="cv-tiles"></canvas>
+      <div class="overlay" id="ov-tiles"><h2>GAME OVER</h2><div class="score">スコア: <span id="t-final">0</span></div><button class="btn" onclick="TilesGame.start()">Restart</button></div>
+      <div class="hint">黒タイルをタップ / 白を踏むとアウト</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Tab switch =====
+const tabs = document.querySelectorAll('.tab');
+const games = {stacker:document.getElementById('game-stacker'),jump:document.getElementById('game-jump'),tiles:document.getElementById('game-tiles')};
+let activeTab = 'stacker';
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  Object.values(games).forEach(g => g.classList.remove('active'));
+  activeTab = t.dataset.tab;
+  games[activeTab].classList.add('active');
+  // resize canvas of active game
+  if (activeTab === 'stacker') StackerGame.resize();
+  if (activeTab === 'jump') JumpGame.resize();
+  if (activeTab === 'tiles') TilesGame.resize();
+}));
+
+const LS = {
+  get: k => parseInt(localStorage.getItem(k) || '0', 10),
+  set: (k, v) => localStorage.setItem(k, String(v))
+};
+
+function fitCanvas(cv) {
+  const r = cv.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = r.width * dpr;
+  cv.height = r.height * dpr;
+  cv.style.width = r.width + 'px';
+  cv.style.height = r.height + 'px';
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return {w: r.width, h: r.height, ctx};
+}
+
+// ===== PiloStacker =====
+const StackerGame = (() => {
+  const cv = document.getElementById('cv-stacker');
+  const ov = document.getElementById('ov-stacker');
+  const scoreEl = document.getElementById('s-score');
+  const bestEl = document.getElementById('s-best');
+  const finalEl = document.getElementById('s-final');
+  let W=0,H=0,ctx=null;
+  let blocks=[]; // {x,w,y,h,color}
+  let moving=null; // {x,w,y,h,dir,speed,color}
+  let falling=[]; // pieces falling off
+  let score=0,best=0,running=false,raf=0;
+  const BH = 24;
+
+  function resize(){const f=fitCanvas(cv);W=f.w;H=f.h;ctx=f.ctx;}
+  function color(i){const hue=(180+i*18)%360;return `hsl(${hue},65%,55%)`;}
+
+  function start(){
+    resize();
+    blocks=[];falling=[];score=0;
+    bestEl.textContent = (best = LS.get('stacker_best'));
+    scoreEl.textContent = 0;
+    const baseW = W*0.6;
+    blocks.push({x:(W-baseW)/2, w:baseW, y:H-BH, h:BH, color:color(0)});
+    spawnMoving();
+    ov.classList.remove('show');
+    running=true;
+    cancelAnimationFrame(raf);
+    loop();
+  }
+  function spawnMoving(){
+    const top = blocks[blocks.length-1];
+    const w = top.w;
+    const y = top.y - BH;
+    const speed = 2 + Math.min(score*0.15, 4);
+    moving = {x: 0, w, y, h:BH, dir:1, speed, color: color(blocks.length)};
+  }
+  function tap(){
+    if (!running || !moving) return;
+    const top = blocks[blocks.length-1];
+    const left = Math.max(moving.x, top.x);
+    const right = Math.min(moving.x+moving.w, top.x+top.w);
+    const overlap = right-left;
+    if (overlap <= 0){
+      // miss
+      falling.push({x:moving.x,y:moving.y,w:moving.w,h:moving.h,vy:0,color:moving.color});
+      moving=null;
+      gameover();
+      return;
+    }
+    // overlap part stays
+    const newBlock = {x:left, w:overlap, y:moving.y, h:BH, color:moving.color};
+    // off part falls
+    if (moving.x < left){
+      falling.push({x:moving.x, y:moving.y, w:left-moving.x, h:BH, vy:0, color:moving.color});
+    }
+    if (moving.x+moving.w > right){
+      falling.push({x:right, y:moving.y, w:(moving.x+moving.w)-right, h:BH, vy:0, color:moving.color});
+    }
+    blocks.push(newBlock);
+    score++;
+    scoreEl.textContent = score;
+    if (score > best){best=score;LS.set('stacker_best',best);bestEl.textContent=best;}
+    // scroll up if too high
+    if (newBlock.y < H*0.3){
+      const dy = H*0.1;
+      blocks.forEach(b=>b.y+=dy);
+      falling.forEach(f=>f.y+=dy);
+    }
+    spawnMoving();
+  }
+  function gameover(){running=false;finalEl.textContent=score;ov.classList.add('show');}
+  function loop(){
+    if (!ctx) return;
+    ctx.fillStyle='#0b0e14';ctx.fillRect(0,0,W,H);
+    // blocks
+    blocks.forEach(b=>{ctx.fillStyle=b.color;ctx.fillRect(b.x,b.y,b.w,b.h);});
+    // moving
+    if (moving){
+      moving.x += moving.dir*moving.speed;
+      if (moving.x<=0){moving.x=0;moving.dir=1;}
+      if (moving.x+moving.w>=W){moving.x=W-moving.w;moving.dir=-1;}
+      ctx.fillStyle=moving.color;ctx.fillRect(moving.x,moving.y,moving.w,moving.h);
+    }
+    // falling
+    falling.forEach(f=>{f.vy+=0.5;f.y+=f.vy;ctx.fillStyle=f.color;ctx.fillRect(f.x,f.y,f.w,f.h);});
+    falling = falling.filter(f=>f.y<H+50);
+    raf = requestAnimationFrame(loop);
+  }
+  cv.addEventListener('touchstart', e=>{e.preventDefault();tap();},{passive:false});
+  cv.addEventListener('mousedown', e=>{e.preventDefault();tap();});
+  window.addEventListener('resize', ()=>{if(activeTab==='stacker')resize();});
+  return {start, resize};
+})();
+
+// ===== PiloJump =====
+const JumpGame = (() => {
+  const cv = document.getElementById('cv-jump');
+  const ov = document.getElementById('ov-jump');
+  const scoreEl = document.getElementById('j-score');
+  const bestEl = document.getElementById('j-best');
+  const finalEl = document.getElementById('j-final');
+  let W=0,H=0,ctx=null;
+  let player; // {x,y,vy,r,dir}
+  let platforms=[]; // {x,y,w}
+  let score=0,best=0,running=false,raf=0;
+  const PW=70,PH=10;
+
+  function resize(){const f=fitCanvas(cv);W=f.w;H=f.h;ctx=f.ctx;}
+  function start(){
+    resize();
+    score=0;
+    bestEl.textContent=(best=LS.get('jump_best'));
+    scoreEl.textContent=0;
+    player={x:W/2,y:H-100,vy:0,r:14,dir:1};
+    platforms=[];
+    // initial floor
+    platforms.push({x:W/2-PW/2,y:H-40,w:PW});
+    for(let i=1;i<10;i++){platforms.push({x:Math.random()*(W-PW),y:H-40-i*70,w:PW});}
+    ov.classList.remove('show');
+    running=true;
+    cancelAnimationFrame(raf);loop();
+  }
+  function gameover(){running=false;finalEl.textContent=score;ov.classList.add('show');}
+  function loop(){
+    if (!ctx) return;
+    ctx.fillStyle='#0b0e14';ctx.fillRect(0,0,W,H);
+    // physics
+    player.vy += 0.4;
+    player.y += player.vy;
+    player.x += player.dir*2.5;
+    if (player.x<player.r){player.x=player.r;player.dir=1;}
+    if (player.x>W-player.r){player.x=W-player.r;player.dir=-1;}
+    // collide platforms when falling
+    if (player.vy>0){
+      for (const p of platforms){
+        if (player.x>p.x && player.x<p.x+p.w &&
+            player.y+player.r>p.y && player.y+player.r<p.y+PH+10 && player.vy>0){
+          player.vy = -10;
+        }
+      }
+    }
+    // scroll
+    if (player.y < H/2){
+      const dy = H/2 - player.y;
+      player.y = H/2;
+      platforms.forEach(p=>p.y+=dy);
+      score += Math.floor(dy);
+      scoreEl.textContent = score;
+      if (score>best){best=score;LS.set('jump_best',best);bestEl.textContent=best;}
+    }
+    // drop dead platforms, add new
+    platforms = platforms.filter(p=>p.y<H+20);
+    while (platforms.length<10){
+      const top = Math.min(...platforms.map(p=>p.y));
+      platforms.push({x:Math.random()*(W-PW), y: top-70, w:PW});
+    }
+    // dead?
+    if (player.y > H+50){gameover();return;}
+    // draw platforms
+    platforms.forEach(p=>{ctx.fillStyle='#4ea8ff';ctx.fillRect(p.x,p.y,p.w,PH);});
+    // draw player
+    ctx.fillStyle='#ffd34e';
+    ctx.beginPath();ctx.arc(player.x,player.y,player.r,0,Math.PI*2);ctx.fill();
+    raf = requestAnimationFrame(loop);
+  }
+  function handleTap(e){
+    if (!running) return;
+    const rect = cv.getBoundingClientRect();
+    const t = e.touches?e.touches[0]:e;
+    const x = t.clientX - rect.left;
+    player.dir = (x < rect.width/2) ? -1 : 1;
+  }
+  cv.addEventListener('touchstart', e=>{e.preventDefault();handleTap(e);},{passive:false});
+  cv.addEventListener('mousedown', e=>{e.preventDefault();handleTap(e);});
+  window.addEventListener('resize', ()=>{if(activeTab==='jump')resize();});
+  return {start, resize};
+})();
+
+// ===== PiloTiles =====
+const TilesGame = (() => {
+  const cv = document.getElementById('cv-tiles');
+  const ov = document.getElementById('ov-tiles');
+  const scoreEl = document.getElementById('t-score');
+  const bestEl = document.getElementById('t-best');
+  const finalEl = document.getElementById('t-final');
+  let W=0,H=0,ctx=null;
+  let cols=4, tiles=[], speed=3, score=0, best=0, running=false, raf=0, spawnT=0;
+  const TH = 110; // tile height
+
+  function resize(){const f=fitCanvas(cv);W=f.w;H=f.h;ctx=f.ctx;}
+  function start(){
+    resize();
+    tiles=[];score=0;speed=3;spawnT=0;
+    bestEl.textContent=(best=LS.get('tiles_best'));
+    scoreEl.textContent=0;
+    // pre-fill
+    for (let i=0;i<5;i++) tiles.push({col:Math.floor(Math.random()*cols), y: -i*TH - TH, hit:false});
+    ov.classList.remove('show');
+    running=true;
+    cancelAnimationFrame(raf);loop();
+  }
+  function gameover(){running=false;finalEl.textContent=score;ov.classList.add('show');}
+  function colW(){return W/cols;}
+  function loop(){
+    if (!ctx) return;
+    ctx.fillStyle='#1a2030';ctx.fillRect(0,0,W,H);
+    // grid lines
+    ctx.strokeStyle='#2a3245';ctx.lineWidth=1;
+    for (let i=1;i<cols;i++){ctx.beginPath();ctx.moveTo(i*colW(),0);ctx.lineTo(i*colW(),H);ctx.stroke();}
+    // line at bottom
+    const lineY = H-20;
+    ctx.strokeStyle='#ff5577';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(0,lineY);ctx.lineTo(W,lineY);ctx.stroke();
+
+    // move tiles
+    tiles.forEach(t=>{t.y += speed;});
+    // draw tiles
+    tiles.forEach(t=>{
+      ctx.fillStyle = t.hit ? '#3a3f4a' : '#0b0e14';
+      ctx.fillRect(t.col*colW()+2, t.y, colW()-4, TH-4);
+    });
+    // check missed (passed bottom without tap)
+    for (const t of tiles){
+      if (!t.hit && t.y > lineY){
+        gameover();return;
+      }
+    }
+    // remove offscreen
+    tiles = tiles.filter(t=>t.y<H+TH);
+    // spawn new
+    spawnT += speed;
+    if (spawnT > TH){
+      spawnT = 0;
+      const last = tiles.length ? tiles[tiles.length-1] : null;
+      const topY = last ? Math.min(...tiles.map(x=>x.y)) : 0;
+      tiles.push({col:Math.floor(Math.random()*cols), y: topY-TH, hit:false});
+    }
+    // speed up
+    speed += 0.0015;
+    raf = requestAnimationFrame(loop);
+  }
+  function handleTap(e){
+    if (!running) return;
+    const rect = cv.getBoundingClientRect();
+    const t = e.touches?e.touches[0]:e;
+    const x = t.clientX - rect.left;
+    const y = t.clientY - rect.top;
+    const col = Math.floor(x / (rect.width/cols));
+    // find lowest unhit tile in this col that's on screen
+    let target=null;
+    for (const tile of tiles){
+      if (tile.col===col && !tile.hit && tile.y+TH>0 && tile.y<H){
+        if (!target || tile.y > target.y) target = tile;
+      }
+    }
+    if (target && y >= target.y && y <= target.y+TH){
+      target.hit = true;
+      score++;
+      scoreEl.textContent = score;
+      if (score>best){best=score;LS.set('tiles_best',best);bestEl.textContent=best;}
+    } else {
+      // tapped white (no black tile here) = game over
+      gameover();
+    }
+  }
+  cv.addEventListener('touchstart', e=>{e.preventDefault();handleTap(e);},{passive:false});
+  cv.addEventListener('mousedown', e=>{e.preventDefault();handleTap(e);});
+  window.addEventListener('resize', ()=>{if(activeTab==='tiles')resize();});
+  return {start, resize};
+})();
+
+// ===== boot =====
+window.addEventListener('load', () => {
+  StackerGame.start();
+  // pre-init others (lazy resize on tab switch)
+});
+</script>
+</body>
+</html>
