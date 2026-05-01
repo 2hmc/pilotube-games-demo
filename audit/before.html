@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PLT-EDIT-010 PiloTube デザイン統一感調査</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif; }
+  .swatch { width: 80px; height: 60px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.08); }
+  .meta { font-size: 11px; color: #475569; font-family: ui-monospace, monospace; }
+  .count { font-size: 11px; color: #b91c1c; font-weight: 600; }
+  section { margin-bottom: 56px; }
+  h2 { border-left: 6px solid #dc2626; padding-left: 12px; }
+  .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .card { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; }
+  .warn { background: #fef2f2; border-left: 4px solid #dc2626; padding: 12px 16px; border-radius: 4px; margin: 8px 0; }
+  .ok { background: #f0fdf4; border-left: 4px solid #16a34a; padding: 12px 16px; border-radius: 4px; margin: 8px 0; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 p-8 max-w-7xl mx-auto">
+
+<header class="mb-12 pb-6 border-b-2 border-red-600">
+  <h1 class="text-3xl font-bold mb-2">PiloTube デザイン統一感調査レポート</h1>
+  <p class="meta">管理ID: PLT-EDIT-010 / 対象: apps/web/src/ 全コンポーネント / 調査日: 2026-04-29 / read-only audit</p>
+  <p class="mt-3 text-sm">Tailwind CDN 実レンダリング。各カード = 実物サンプル + class 名 + 出現回数(grep ベース)。下部に統一推奨。</p>
+</header>
+
+<!-- ============== TEXT COLORS ============== -->
+<section>
+<h2 class="text-xl font-bold mb-4">1. テキストカラー(text-*)</h2>
+<p class="meta mb-3">主要 28 種検出 / 上位グレー系 8 種で 2,700 件超。red-600/700/400 が CTA・重要箇所。</p>
+<div class="grid-cards">
+  <div class="card"><p class="text-gray-400 text-base">Aa あ</p><p class="meta">text-gray-400</p><p class="count">768</p></div>
+  <div class="card"><p class="text-gray-500 text-base">Aa あ</p><p class="meta">text-gray-500</p><p class="count">343</p></div>
+  <div class="card"><p class="text-gray-900 text-base">Aa あ</p><p class="meta">text-gray-900</p><p class="count">324</p></div>
+  <div class="card bg-gray-900"><p class="text-gray-100 text-base">Aa あ</p><p class="meta text-gray-300">text-gray-100</p><p class="count">320</p></div>
+  <div class="card bg-gray-900"><p class="text-white text-base">Aa あ</p><p class="meta text-gray-300">text-white</p><p class="count">305</p></div>
+  <div class="card"><p class="text-gray-700 text-base">Aa あ</p><p class="meta">text-gray-700</p><p class="count">284</p></div>
+  <div class="card bg-gray-900"><p class="text-gray-300 text-base">Aa あ</p><p class="meta text-gray-300">text-gray-300</p><p class="count">278</p></div>
+  <div class="card"><p class="text-gray-600 text-base">Aa あ</p><p class="meta">text-gray-600</p><p class="count">261</p></div>
+  <div class="card"><p class="text-red-600 text-base font-semibold">Aa あ</p><p class="meta">text-red-600</p><p class="count">219</p></div>
+  <div class="card bg-gray-900"><p class="text-red-400 text-base font-semibold">Aa あ</p><p class="meta text-gray-300">text-red-400</p><p class="count">214</p></div>
+  <div class="card"><p class="text-red-700 text-base font-semibold">Aa あ</p><p class="meta">text-red-700</p><p class="count">160</p></div>
+  <div class="card"><p class="text-gray-200 text-base">Aa あ</p><p class="meta">text-gray-200</p><p class="count">122</p></div>
+  <div class="card"><p class="text-gray-800 text-base">Aa あ</p><p class="meta">text-gray-800</p><p class="count">84</p></div>
+  <div class="card"><p class="text-red-500 text-base font-semibold">Aa あ</p><p class="meta">text-red-500</p><p class="count">34</p></div>
+  <div class="card"><p class="text-blue-600 text-base">Aa あ</p><p class="meta">text-blue-600</p><p class="count">38</p></div>
+  <div class="card"><p class="text-amber-700 text-base">Aa あ</p><p class="meta">text-amber-700</p><p class="count">26</p></div>
+  <div class="card"><p class="text-green-600 text-base">Aa あ</p><p class="meta">text-green-600</p><p class="count">18</p></div>
+  <div class="card"><p class="text-rose-600 text-base">Aa あ</p><p class="meta">text-rose-600</p><p class="count">14</p></div>
+  <div class="card"><p class="text-stone-900 text-base">Aa あ</p><p class="meta">text-stone-900</p><p class="count">13</p></div>
+  <div class="card"><p class="text-zinc-400 text-base">Aa あ</p><p class="meta">text-zinc-400</p><p class="count">11</p></div>
+  <div class="card"><p class="text-slate-400 text-base">Aa あ</p><p class="meta">text-slate-400</p><p class="count">8</p></div>
+</div>
+<div class="warn"><strong>統一推奨:</strong> グレー系で <code>gray</code> / <code>zinc</code> / <code>slate</code> / <code>stone</code> が混在(計 4 系統)。<strong>gray に統一</strong>(現状 9 割超)。zinc/slate/stone の数十件を一括置換するだけで完了。red 系も <code>red</code> / <code>rose</code> 混在 → <strong>red 統一</strong>(rose 28 件のみ)。</div>
+</section>
+
+<!-- ============== BG COLORS ============== -->
+<section>
+<h2 class="text-xl font-bold mb-4">2. 背景色(bg-*)</h2>
+<p class="meta mb-3">主要 30 種検出。bg-gray-900(393)/ bg-white(298)/ bg-gray-50(204) が三大ベース。red-600/700 が primary CTA。</p>
+<div class="grid-cards">
+  <div class="card"><div class="bg-gray-900 swatch"></div><p class="meta">bg-gray-900</p><p class="count">393</p></div>
+  <div class="card"><div class="bg-white swatch"></div><p class="meta">bg-white</p><p class="count">298</p></div>
+  <div class="card"><div class="bg-gray-50 swatch"></div><p class="meta">bg-gray-50</p><p class="count">204</p></div>
+  <div class="card"><div class="bg-red-600 swatch"></div><p class="meta">bg-red-600</p><p class="count">189</p></div>
+  <div class="card"><div class="bg-gray-800 swatch"></div><p class="meta">bg-gray-800</p><p class="count">184</p></div>
+  <div class="card"><div class="bg-red-700 swatch"></div><p class="meta">bg-red-700</p><p class="count">173</p></div>
+  <div class="card"><div class="bg-gray-700 swatch"></div><p class="meta">bg-gray-700</p><p class="count">143</p></div>
+  <div class="card"><div class="bg-gray-100 swatch"></div><p class="meta">bg-gray-100</p><p class="count">109</p></div>
+  <div class="card"><div class="bg-red-50 swatch"></div><p class="meta">bg-red-50</p><p class="count">106</p></div>
+  <div class="card"><div class="bg-gray-200 swatch"></div><p class="meta">bg-gray-200</p><p class="count">102</p></div>
+  <div class="card"><div class="bg-red-500 swatch"></div><p class="meta">bg-red-500</p><p class="count">74</p></div>
+  <div class="card"><div class="bg-black swatch"></div><p class="meta">bg-black</p><p class="count">62</p></div>
+  <div class="card"><div class="bg-red-400 swatch"></div><p class="meta">bg-red-400</p><p class="count">59</p></div>
+  <div class="card"><div class="bg-red-100 swatch"></div><p class="meta">bg-red-100</p><p class="count">38</p></div>
+  <div class="card"><div class="bg-amber-50 swatch"></div><p class="meta">bg-amber-50</p><p class="count">28</p></div>
+  <div class="card"><div class="bg-red-950 swatch"></div><p class="meta">bg-red-950</p><p class="count">27</p></div>
+  <div class="card"><div class="bg-blue-50 swatch"></div><p class="meta">bg-blue-50</p><p class="count">23</p></div>
+  <div class="card"><div class="bg-zinc-800 swatch"></div><p class="meta">bg-zinc-800</p><p class="count">15</p></div>
+  <div class="card"><div class="bg-orange-50 swatch"></div><p class="meta">bg-orange-50</p><p class="count">15</p></div>
+  <div class="card"><div class="bg-amber-100 swatch"></div><p class="meta">bg-amber-100</p><p class="count">15</p></div>
+  <div class="card"><div class="bg-emerald-700 swatch"></div><p class="meta">bg-emerald-700</p><p class="count">8</p></div>
+</div>
+<div class="warn"><strong>統一推奨:</strong> info/success/warning 系の背景色が <code>blue/amber/orange/yellow/green/emerald</code> と発散。<strong>4 系統に集約推奨</strong>: info=blue-50/600 / success=green-50/600 / warning=amber-50/600 / danger=red-50/600。emerald・rose・stone は廃止候補。</div>
+</section>
+
+<!-- ============== BORDER ============== -->
+<section>
+<h2 class="text-xl font-bold mb-4">3. ボーダー色(border-*)</h2>
+<div class="grid-cards">
+  <div class="card"><div class="border-2 border-gray-200 h-12 rounded"></div><p class="meta">border-gray-200</p><p class="count">265</p></div>
+  <div class="card bg-gray-900"><div class="border-2 border-gray-700 h-12 rounded"></div><p class="meta text-gray-300">border-gray-700</p><p class="count">264</p></div>
+  <div class="card bg-gray-900"><div class="border-2 border-gray-600 h-12 rounded"></div><p class="meta text-gray-300">border-gray-600</p><p class="count">181</p></div>
+  <div class="card"><div class="border-2 border-gray-300 h-12 rounded"></div><p class="meta">border-gray-300</p><p class="count">175</p></div>
+  <div class="card"><div class="border-2 border-gray-100 h-12 rounded"></div><p class="meta">border-gray-100</p><p class="count">65</p></div>
+  <div class="card"><div class="border-2 border-red-200 h-12 rounded"></div><p class="meta">border-red-200</p><p class="count">46</p></div>
+  <div class="card"><div class="border-2 border-red-300 h-12 rounded"></div><p class="meta">border-red-300</p><p class="count">33</p></div>
+  <div class="card"><div class="border-2 border-blue-500 h-12 rounded"></div><p class="meta">border-blue-500</p><p class="count">19</p></div>
+  <div class="card"><div class="border-2 border-amber-300 h-12 rounded"></div><p class="meta">border-amber-300</p><p class="count">16</p></div>
+  <div class="card"><div class="border-2 border-zinc-800 h-12 rounded"></div><p class="meta">border-zinc-800</p><p class="count">16</p></div>
+</div>
+<div class="ok"><strong>OK:</strong> light=gray-200 / dark=gray-700 で 8 割を占める、おおむね統一済。zinc-800(16 件)を gray-800 に置換すれば完成。</div>
+</section>
+
+<!-- ============== HOVER ============== -->
+<section>
+<h2 class="text-xl font-bold mb-4">4. ホバー(hover:*)</h2>
+<div class="grid-cards">
+  <div class="card"><button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm">hover</button><p class="meta">hover:bg-red-700</p><p class="count">112</p></div>
+  <div class="card"><button class="bg-white hover:bg-gray-50 border border-gray-300 px-4 py-2 rounded text-sm">hover</button><p class="meta">hover:bg-gray-50</p><p class="count">84</p></div>
+  <div class="card"><a class="text-red-600 hover:text-red-700 px-2 text-sm">link</a><p class="meta">hover:text-red-700</p><p class="count">76</p></div>
+  <div class="card bg-gray-900"><a class="text-red-400 hover:text-red-300 px-2 text-sm">link</a><p class="meta text-gray-300">hover:text-red-300</p><p class="count">70</p></div>
+  <div class="card bg-gray-900"><button class="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded text-sm">hover</button><p class="meta text-gray-300">hover:bg-red-400</p><p class="count">50</p></div>
+  <div class="card"><button class="bg-gray-100 hover:bg-gray-100 px-4 py-2 rounded text-sm">hover</button><p class="meta">hover:bg-gray-100</p><p class="count">38</p></div>
+  <div class="card"><button class="bg-red-600 hover:bg-red-600 text-white px-4 py-2 rounded text-sm">hover</button><p class="meta">hover:bg-red-600</p><p class="count">37</p></div>
+</div>
+<div class="warn"><strong>統一推奨:</strong> primary CTA hover が <code>red-700</code>(明)/<code>red-600</code>/<code>red-400</code>(dark)/<code>red-800</code> 4 種混在。<strong>1 ペア(light=red-700, dark=red-400)に統一</strong>推奨。</div>
+</section>
+
+<!-- ============== ROUNDED ============== -->
+<section>
+<h2 class="text-xl font-bold mb-4">5. 角丸(rounded-*)</h2>
+<div class="grid-cards">
+  <div class="card"><div class="bg-red-600 rounded-lg h-12"></div><p class="meta">rounded-lg</p><p class="count">427</p></div>
+  <div class="card"><div class="bg-red-600 rounded h-12"></div><p class="meta">rounded (=md, 0.25rem)</p><p class="count">284</p></div>
+  <div class="card"><div class="bg-red-600 rounded-full h-12 w-12"></div><p class="meta">rounded-full</p><p class="count">168</p></div>
+  <div class="card"><div class="bg-red-600 rounded-xl h-12"></div><p class="meta">rounded-xl</p><p class="count">106</p></div>
+  <div class="card"><div class="bg-red-600 rounded-md h-12"></div><p class="meta">rounded-md</p><p class="count">97</p></div>
+  <div class="card"><div class="bg-red-600 rounded-2xl h-12"></div><p class="meta">rounded-2xl</p><p class="count">25</p></div>
+  <div class="card"><div class="bg-red-600 rounded-sm h-12"></div><p class="meta">rounded-sm</p><p class="count">3</p></div>
+</div>
+<div class="warn"><strong>統一推奨:</strong> 5 サイズ + bare(rounded)が混在。<strong>3 段階に集約</strong>: ボタン/カード=<code>rounded-lg</code> / インプット=<code>rounded-md</code> / アバター=<code>rounded-full</code>。<code>rounded</code>(bare 284 件)・<code>rounded-xl</code>(106 件)・<code>rounded-2xl</code>(25 件)を <code>rounded-lg</code> に置換、<code>rounded-sm</code> 廃止。</div>
+</section>
+
+<!-- ============== SHADOW ============== -->
+<section>
+<h2 class="text-xl font-bold mb-4">6. シャドウ(shadow-*)</h2>
+<div class="grid-cards">
+  <div class="card"><div class="bg-white shadow-sm h-12 rounded border"></div><p class="meta">shadow-sm</p><p class="count">60</p></div>
+  <div class="card"><div class="bg-white shadow-xl h-12 rounded"></div><p class="meta">shadow-xl</p><p class="count">33</p></div>
+  <div class="card"><div class="bg-white shadow-lg h-12 rounded"></div><p class="meta">shadow-lg</p><p class="count">27</p></div>
+  <div class="card"><div class="bg-white shadow-2xl h-12 rounded"></div><p class="meta">shadow-2xl</p><p class="count">14</p></div>
+  <div class="card"><div class="bg-white shadow-md h-12 rounded"></div><p class="meta">shadow-md</p><p class="count">13</p></div>
+  <div class="card"><div class="bg-white shadow h-12 rounded"></div><p class="meta">shadow (default)</p><p class="count">9</p></div>
+</div>
+<div class="warn"><strong>統一推奨:</strong> 6 段階混在。<strong>3 段階に集約</strong>: カード=<code>shadow-sm</code> / モーダル=<code>shadow-xl</code> / overlay=<code>shadow-2xl</code>。<code>shadow-md</code>/<code>shadow-lg</code>/bare <code>shadow</code> を統合先に置換。</div>
+</section>
+
+<!-- ============== BUTTONS ============== -->
+<section>
+<h2 class="text-xl font-bold mb-4">7. ボタンパターン(primary CTA の揺れ)</h2>
+<p class="meta mb-3">共通 Button コンポーネント未検出 → 各画面が手書きで bg-red-600 ベタ書き。class 列が 10 種以上検出。</p>
+<div class="space-y-3">
+  <div class="card">
+    <button class="inline-flex items-center gap-2 rounded-lg bg-red-600 dark:bg-red-700 px-6 py-3 text-sm font-semibold text-white hover:bg-red-700 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900">パターンA(出現5)</button>
+    <p class="meta mt-1">px-6 py-3 / font-semibold / focus-ring full / dark:bg-red-700</p>
+  </div>
+  <div class="card">
+    <button class="inline-flex items-center justify-center rounded-lg bg-red-600 dark:bg-red-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-red-700 dark:hover:bg-red-400">パターンB(出現4)</button>
+    <p class="meta mt-1">font-medium / focus-ring なし / dark:bg-red-500(A と異なる)</p>
+  </div>
+  <div class="card">
+    <button class="inline-flex items-center gap-2 rounded-lg bg-red-600 dark:bg-red-500 px-6 py-3 text-base font-medium text-white hover:bg-red-700 dark:hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-500">パターンC(出現4)</button>
+    <p class="meta mt-1">text-base / focus-ring 簡略</p>
+  </div>
+  <div class="card">
+    <button class="inline-flex items-center gap-2 rounded-lg bg-red-600 dark:bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 dark:hover:bg-red-600">パターンD - サイズ違い(出現3)</button>
+    <p class="meta mt-1">px-4 py-2(コンパクト)</p>
+  </div>
+  <div class="card">
+    <button class="w-full rounded-md bg-red-600 dark:bg-red-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700 dark:hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-40">パターンE - rounded-md(出現2)</button>
+    <p class="meta mt-1">rounded-md(他は rounded-lg)</p>
+  </div>
+</div>
+<div class="warn"><strong>統一推奨(最重要):</strong> 共通 <code>&lt;Button variant="primary|secondary|outline|ghost" size="sm|md|lg"&gt;</code> コンポーネント新設。dark mode の <code>dark:bg-red-500 vs red-700</code> 揺れ・focus-ring の有無・font-weight(medium vs semibold)・rounded サイズ違いを 1 ファイルで統制。launch 後の最優先改修候補。</div>
+</section>
+
+<!-- ============== DARK MODE ============== -->
+<section>
+<h2 class="text-xl font-bold mb-4">8. dark mode(dark:*)</h2>
+<p class="meta mb-3">2,800 件超 / dark mode 対応はほぼ全画面に浸透。ペア標準は確立済(下記 ok)。</p>
+<div class="grid grid-cols-2 gap-3">
+  <div class="card">
+    <p class="text-sm font-semibold mb-2">light/dark ペア標準</p>
+    <ul class="meta space-y-1">
+      <li>本文: text-gray-900 ⇄ dark:text-gray-100</li>
+      <li>サブ: text-gray-700 ⇄ dark:text-gray-300</li>
+      <li>キャプション: text-gray-500 ⇄ dark:text-gray-400</li>
+      <li>背景: bg-white ⇄ dark:bg-gray-900</li>
+      <li>カード: bg-gray-50 ⇄ dark:bg-gray-800</li>
+      <li>ボーダー: border-gray-200 ⇄ dark:border-gray-700</li>
+    </ul>
+  </div>
+  <div class="card">
+    <p class="text-sm font-semibold mb-2">CTA(red)dark の揺れ</p>
+    <ul class="meta space-y-1">
+      <li>dark:bg-red-500(69)</li>
+      <li>dark:bg-red-700(37)</li>
+      <li>dark:bg-red-950(21)</li>
+      <li>dark:text-red-400(198)<- 統一</li>
+      <li>dark:hover:bg-red-400 vs red-600 混在</li>
+    </ul>
+  </div>
+</div>
+<div class="ok"><strong>OK:</strong> グレー軸の light/dark ペアは標準確立済(8割以上整合)。</div>
+<div class="warn"><strong>統一推奨:</strong> red CTA の dark バリアントを <strong>dark:bg-red-500 + dark:hover:bg-red-400</strong> に統一(現状 7 と 5 と 4 と 6 が混在)。</div>
+</section>
+
+<!-- ============== TABLE ============== -->
+<section>
+<h2 class="text-xl font-bold mb-4">9. テーブル系</h2>
+<div class="card">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 dark:bg-gray-900 text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400">
+      <tr><th class="px-4 py-2 text-left">項目</th><th class="px-4 py-2 text-left">値</th></tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+      <tr><td class="px-4 py-2">セル1</td><td class="px-4 py-2">データ</td></tr>
+      <tr><td class="px-4 py-2">セル2</td><td class="px-4 py-2">データ</td></tr>
+    </tbody>
+  </table>
+  <p class="meta mt-2">thead パターン: bg-gray-50 dark:bg-gray-900 が 6/8 件、bg-gray-100 dark:bg-gray-800 が 1 件で混在</p>
+</div>
+<div class="warn"><strong>統一推奨:</strong> thead を <code>bg-gray-50 dark:bg-gray-900 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400</code> 固定、divide は <code>divide-gray-100 dark:divide-gray-700</code> に統一(現状 divide-gray-100 と divide-gray-200 が拮抗)。</div>
+</section>
+
+<!-- ============== FOCUS RING ============== -->
+<section>
+<h2 class="text-xl font-bold mb-4">10. フォーカスリング</h2>
+<div class="grid grid-cols-2 gap-3">
+  <div class="card">
+    <button class="bg-white border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm">red ring(クリックして確認)</button>
+    <p class="meta mt-2">focus:ring-red-500: 49件 / focus:ring-2: 50件 / offset-2: 11件</p>
+  </div>
+  <div class="card">
+    <button class="bg-white border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">blue ring</button>
+    <p class="meta mt-2">focus:ring-blue-500: 24件 / focus:border-blue-500: 14件</p>
+  </div>
+</div>
+<div class="warn"><strong>統一推奨:</strong> focus ring の color が red/blue/orange 混在。<strong>red-500 統一</strong>(ブランド色一致、blue/orange を一括置換 38 件)。focus-visible 系(8 件)と focus 系(50 件)も focus-visible に統一推奨(キーボード navigation 用ベストプラクティス)。</div>
+</section>
+
+<!-- ============== MODAL ============== -->
+<section>
+<h2 class="text-xl font-bold mb-4">11. モーダル</h2>
+<p class="meta mb-3">Modal/Dialog コンポーネント未統合。10+ 個の <code>_components/*Modal.tsx</code> が個別実装。</p>
+<div class="card">
+  <div class="relative h-64 bg-gray-100 rounded overflow-hidden">
+    <div class="absolute inset-0 bg-black/50"></div>
+    <div class="absolute inset-0 flex items-center justify-center">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4">
+        <h3 class="text-lg font-semibold mb-2">モーダル例</h3>
+        <p class="text-sm text-gray-600 mb-4">overlay = bg-black/50 / content = bg-white rounded-xl shadow-2xl</p>
+        <div class="flex gap-2 justify-end">
+          <button class="px-4 py-2 text-sm rounded-lg border border-gray-300">キャンセル</button>
+          <button class="px-4 py-2 text-sm rounded-lg bg-red-600 text-white">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="warn"><strong>統一推奨(高):</strong> 共通 <code>&lt;Modal&gt;</code>(overlay/animation/close handler/aria 含む)を新設。現状 10+ 個別実装で overlay opacity・rounded サイズ・close button 位置・ESC キー対応がバラバラ。Headless UI / Radix Dialog 採用検討。</div>
+</section>
+
+<!-- ============== SUMMARY ============== -->
+<section class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-600">
+<h2 class="text-xl font-bold mb-4">統一推奨サマリ(優先度順)</h2>
+<table class="w-full text-sm">
+<thead class="bg-gray-50 text-left">
+  <tr><th class="px-3 py-2">#</th><th class="px-3 py-2">領域</th><th class="px-3 py-2">推奨</th><th class="px-3 py-2">影響範囲</th><th class="px-3 py-2">工数</th></tr>
+</thead>
+<tbody class="divide-y divide-gray-100">
+  <tr><td class="px-3 py-2">1</td><td class="px-3 py-2 font-semibold">共通 Button コンポーネント新設</td><td class="px-3 py-2">variant×size 9 種、bg-red-600 ベタ書き 200+ 箇所を統制</td><td class="px-3 py-2">apps/web 全画面</td><td class="px-3 py-2">L</td></tr>
+  <tr><td class="px-3 py-2">2</td><td class="px-3 py-2 font-semibold">共通 Modal コンポーネント新設</td><td class="px-3 py-2">10+ 個別 Modal を Radix Dialog 等で統合</td><td class="px-3 py-2">thumbnails-ai/admin 中心</td><td class="px-3 py-2">L</td></tr>
+  <tr><td class="px-3 py-2">3</td><td class="px-3 py-2">グレー系統一(zinc/slate/stone → gray)</td><td class="px-3 py-2">機械置換可能、UI ほぼ無変化</td><td class="px-3 py-2">~70 件</td><td class="px-3 py-2">S</td></tr>
+  <tr><td class="px-3 py-2">4</td><td class="px-3 py-2">red CTA dark バリアント統一</td><td class="px-3 py-2">dark:bg-red-500 + dark:hover:bg-red-400 固定</td><td class="px-3 py-2">~150 件</td><td class="px-3 py-2">M</td></tr>
+  <tr><td class="px-3 py-2">5</td><td class="px-3 py-2">rounded 3 段階集約</td><td class="px-3 py-2">bare rounded(284)→ rounded-lg、rounded-xl/2xl も lg に</td><td class="px-3 py-2">~415 件</td><td class="px-3 py-2">M</td></tr>
+  <tr><td class="px-3 py-2">6</td><td class="px-3 py-2">shadow 3 段階集約</td><td class="px-3 py-2">sm/xl/2xl のみ、md/lg/bare 廃止</td><td class="px-3 py-2">~50 件</td><td class="px-3 py-2">S</td></tr>
+  <tr><td class="px-3 py-2">7</td><td class="px-3 py-2">focus ring 統一</td><td class="px-3 py-2">red-500 統一 + focus-visible 採用</td><td class="px-3 py-2">~40 件</td><td class="px-3 py-2">S</td></tr>
+  <tr><td class="px-3 py-2">8</td><td class="px-3 py-2">info/success/warning 系背景色集約</td><td class="px-3 py-2">blue/green/amber/red 50 系 4 系統に固定</td><td class="px-3 py-2">~80 件</td><td class="px-3 py-2">M</td></tr>
+  <tr><td class="px-3 py-2">9</td><td class="px-3 py-2">テーブル thead 統一</td><td class="px-3 py-2">bg-gray-50 dark:bg-gray-900 + uppercase 固定</td><td class="px-3 py-2">~10 件</td><td class="px-3 py-2">S</td></tr>
+</tbody>
+</table>
+<p class="mt-4 text-sm">launch 後の改修順: <strong>3 → 6 → 7 → 9</strong>(機械置換系で即座に 1 段階整う)→ <strong>4 → 5 → 8</strong>(レビュー必要)→ <strong>1 → 2</strong>(コンポーネント設計、最大インパクト)。</p>
+</section>
+
+<footer class="mt-12 pt-6 border-t text-center meta">
+PLT-EDIT-010 design audit / generated 2026-04-29 / read-only / source: apps/web/src/ grep
+</footer>
+</body>
+</html>

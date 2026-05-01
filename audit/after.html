@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PLT-EDIT-012 PiloTube デザイン統一感 再調査(EDIT-011 token merged 後)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif; }
+  .meta { font-size: 11px; color: #475569; font-family: ui-monospace, monospace; }
+  .count-before { font-size: 12px; color: #b91c1c; font-weight: 700; }
+  .count-after  { font-size: 12px; color: #1d4ed8; font-weight: 700; }
+  .delta-same   { font-size: 11px; color: #6b7280; }
+  .delta-better { font-size: 11px; color: #16a34a; font-weight: 600; }
+  section { margin-bottom: 48px; }
+  h2 { border-left: 6px solid #2563eb; padding-left: 12px; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .col { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; }
+  .col-before { border-top: 4px solid #dc2626; }
+  .col-after  { border-top: 4px solid #2563eb; }
+  .col h3 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: #334155; }
+  .warn { background: #fef2f2; border-left: 4px solid #dc2626; padding: 10px 14px; border-radius: 4px; margin: 8px 0; font-size: 13px; }
+  .ok   { background: #f0fdf4; border-left: 4px solid #16a34a; padding: 10px 14px; border-radius: 4px; margin: 8px 0; font-size: 13px; }
+  .partial { background: #fefce8; border-left: 4px solid #ca8a04; padding: 10px 14px; border-radius: 4px; margin: 8px 0; font-size: 13px; }
+  .mark-fixed   { display: inline-block; background: #16a34a; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+  .mark-partial { display: inline-block; background: #ca8a04; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+  .mark-todo    { display: inline-block; background: #dc2626; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+  table { width: 100%; font-size: 13px; }
+  th { background: #f3f4f6; text-align: left; padding: 6px 8px; font-weight: 600; }
+  td { padding: 6px 8px; border-top: 1px solid #e5e7eb; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900 p-8 max-w-7xl mx-auto">
+
+<header class="mb-10 pb-6 border-b-2 border-blue-600">
+  <h1 class="text-3xl font-bold mb-2">PiloTube デザイン統一感 再調査(EDIT-011 token merged 後)</h1>
+  <p class="meta">管理ID: PLT-EDIT-012 / 対象: apps/web/src/ / 調査日: 2026-04-29 / read-only audit / before = EDIT-010 (2026-04-29 同日朝)</p>
+  <p class="mt-3 text-sm">EDIT-011 が globals.css に Google系カラー CSS 変数追加 + 素 &lt;a&gt; のデフォルト色を Google blue に統一。それ以外(11 カテゴリ)の機械置換は post-launch 改修のため未実施 → 残課題として可視化。</p>
+</header>
+
+<!-- Executive summary -->
+<section class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-blue-600 mb-10">
+  <h2 class="text-lg font-bold mb-3">サマリ(11 カテゴリ × before/after)</h2>
+  <table>
+    <thead><tr><th>#</th><th>カテゴリ</th><th>EDIT-010 状態</th><th>EDIT-011 後 状態</th><th>判定</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>素 &lt;a&gt; リンク色</td><td>未統一(青/赤/グレー混在)</td><td>Google blue (#1a73e8) に統一</td><td><span class="mark-fixed">改善済</span></td></tr>
+      <tr><td>0</td><td>CSS 変数(token)</td><td>未整備</td><td>--color-link/text-primary/secondary/muted-g/success-g 追加(light+dark)</td><td><span class="mark-fixed">改善済</span></td></tr>
+      <tr><td>1</td><td>テキストカラー(zinc/slate/stone)</td><td>4 系統混在 ~70 件</td><td>計 213 件残存(置換未実施)</td><td><span class="mark-todo">残課題</span></td></tr>
+      <tr><td>2</td><td>背景色 info/success/warning</td><td>blue/amber/orange/green/emerald 発散</td><td>同上(変化なし)</td><td><span class="mark-todo">残課題</span></td></tr>
+      <tr><td>3</td><td>ボーダー色</td><td>zinc-800 が 16 件</td><td>同上</td><td><span class="mark-todo">残課題</span></td></tr>
+      <tr><td>4</td><td>hover red CTA(red-700/red-400 混在)</td><td>4 種混在</td><td>同上</td><td><span class="mark-todo">残課題</span></td></tr>
+      <tr><td>5</td><td>角丸(rounded)</td><td>5+bare 混在 / bare 284</td><td>5 種残存(rounded-lg 428 / bare 288 / xl 106 / 2xl 25)</td><td><span class="mark-todo">残課題</span></td></tr>
+      <tr><td>6</td><td>シャドウ</td><td>6 段階混在</td><td>shadow-sm/md/lg/xl/2xl 混在(md=16, lg=27 残存)</td><td><span class="mark-todo">残課題</span></td></tr>
+      <tr><td>7</td><td>共通 Button コンポーネント</td><td>未整備、bg-red-600 ベタ書き 189 箇所</td><td>同上(188 箇所)</td><td><span class="mark-todo">残課題</span></td></tr>
+      <tr><td>8</td><td>dark mode red CTA</td><td>dark:bg-red-500/700/950 混在</td><td>同上(red-500=69 / red-700=37)</td><td><span class="mark-todo">残課題</span></td></tr>
+      <tr><td>9</td><td>テーブル thead</td><td>2 系統混在</td><td>同上</td><td><span class="mark-todo">残課題</span></td></tr>
+      <tr><td>10</td><td>focus ring(red/blue 混在)</td><td>red 49 / blue 24</td><td>red 49 / blue 24(変化なし)</td><td><span class="mark-todo">残課題</span></td></tr>
+      <tr><td>11</td><td>共通 Modal コンポーネント</td><td>10+ 個別実装</td><td>20 個 *Modal.tsx 残存(増加傾向)</td><td><span class="mark-todo">残課題</span></td></tr>
+    </tbody>
+  </table>
+  <p class="mt-3 text-sm"><strong>総合: 改善済 2 件(token 基盤+&lt;a&gt;デフォルト)/ 残課題 11 件(launch 後改修対象)</strong>。EDIT-011 はあくまで「土台整備」であり、機械置換・コンポーネント新設は post-launch 工程。</p>
+</section>
+
+<!-- 改善済の詳細 -->
+<section>
+  <h2 class="text-xl font-bold mb-4">改善済 1: 素 &lt;a&gt; デフォルトリンク色 <span class="mark-fixed">改善済</span></h2>
+  <div class="compare-grid">
+    <div class="col col-before">
+      <h3>BEFORE (EDIT-010)</h3>
+      <a class="text-base">これは素の &lt;a&gt;(色未指定)</a>
+      <p class="meta mt-2">ブラウザ default = 青下線 / 各画面で text-blue-600 / text-red-600 / text-gray-700 等の手書き class 混在</p>
+      <p class="count-before mt-1">統一感なし</p>
+    </div>
+    <div class="col col-after">
+      <h3>AFTER (EDIT-011 merged)</h3>
+      <a class="text-base" style="color:#1a73e8">これは素の &lt;a&gt;(Google blue 自動適用)</a>
+      <p class="meta mt-2">globals.css で <code>a:not([class*="text-"]):not([class*="bg-"])</code> に <code>--color-link: #1a73e8</code> 適用、hover #1967d2 / dark #8ab4f8</p>
+      <p class="count-after mt-1">明示色なしリンクは全画面 Google blue 統一</p>
+    </div>
+  </div>
+  <div class="ok"><strong>OK:</strong> Tailwind utility (text-/bg-) を持つ既存リンクは上書きされない後方互換設計。新規追加リンクは何もしなくても統一色になる。</div>
+</section>
+
+<section>
+  <h2 class="text-xl font-bold mb-4">改善済 2: Color token CSS 変数整備 <span class="mark-fixed">改善済</span></h2>
+  <div class="compare-grid">
+    <div class="col col-before">
+      <h3>BEFORE (EDIT-010)</h3>
+      <p class="meta">Google 系カラー定数なし、各画面で hex/Tailwind class 直書き</p>
+      <pre class="meta bg-gray-100 p-2 rounded mt-2">// なし</pre>
+    </div>
+    <div class="col col-after">
+      <h3>AFTER (EDIT-011 merged)</h3>
+      <pre class="meta bg-gray-100 p-2 rounded mt-2">--color-link:           #1a73e8;
+--color-link-hover:     #1967d2;
+--color-link-visited:   #681da8;
+--color-text-primary:   #202124;
+--color-text-secondary: #5f6368;
+--color-text-muted-g:   #70757a;
+--color-success-g:      #188038;
+/* dark mode 7 色も同時定義 */</pre>
+    </div>
+  </div>
+  <div class="ok"><strong>OK:</strong> Tailwind v4 @theme 連携で utility class 化済(<code>text-link / text-text-primary-g / text-success-g</code> 等)。今後の新規実装はこれらを使えば自動統一。</div>
+</section>
+
+<!-- 残課題詳細 -->
+<section>
+  <h2 class="text-xl font-bold mb-4">残課題 1: グレー系 zinc/slate/stone 混在 <span class="mark-todo">残課題</span></h2>
+  <div class="compare-grid">
+    <div class="col col-before">
+      <h3>BEFORE (EDIT-010)</h3>
+      <p class="meta">zinc-400(11) / slate-400(8) / stone-900(13) 等 ~70 件</p>
+      <p class="count-before mt-1">~70 件</p>
+    </div>
+    <div class="col col-after">
+      <h3>AFTER (再 grep)</h3>
+      <p class="meta"><code>(text|bg|border)-(zinc|slate|stone)-[0-9]+</code> = <strong>213 件</strong></p>
+      <p class="meta">※ EDIT-010 はサンプル top のみカウント、本回は完全 grep のため数値増。実態は同程度。</p>
+      <p class="count-after mt-1">213 件残存</p>
+    </div>
+  </div>
+  <div class="warn"><strong>残課題:</strong> 機械置換可能(sed: <code>zinc/slate/stone → gray</code>)。launch 後 1 PR で完了見込み。</div>
+</section>
+
+<section>
+  <h2 class="text-xl font-bold mb-4">残課題 2: 角丸 rounded 5 種混在 <span class="mark-todo">残課題</span></h2>
+  <div class="compare-grid">
+    <div class="col col-before">
+      <h3>BEFORE (EDIT-010)</h3>
+      <p class="meta">rounded-lg 427 / bare 284 / xl 106 / 2xl 25 / full 168 / md 97 / sm 3</p>
+    </div>
+    <div class="col col-after">
+      <h3>AFTER (再 grep)</h3>
+      <p class="meta">rounded-lg <strong>428</strong> / bare <strong>288</strong> / xl <strong>106</strong> / 2xl <strong>25</strong> / full <strong>169</strong> / md <strong>97</strong> / sm <strong>3</strong></p>
+      <p class="delta-same mt-1">差分 ±数件(自然増、置換未実施)</p>
+    </div>
+  </div>
+  <div class="warn"><strong>残課題:</strong> 集約方針(lg / md / full の 3 段階)未実施。bare rounded(288 件)→ rounded-lg、xl/2xl → lg の機械置換が必要。</div>
+</section>
+
+<section>
+  <h2 class="text-xl font-bold mb-4">残課題 3: シャドウ 6 段階混在 <span class="mark-todo">残課題</span></h2>
+  <div class="compare-grid">
+    <div class="col col-before"><h3>BEFORE</h3>
+      <p class="meta">sm 60 / xl 33 / lg 27 / 2xl 14 / md 13 / bare 9</p></div>
+    <div class="col col-after"><h3>AFTER</h3>
+      <p class="meta">md <strong>16</strong> / lg <strong>27</strong> 残存(他カテゴリ未再カウント)</p>
+      <p class="delta-same mt-1">置換未実施</p>
+    </div>
+  </div>
+  <div class="warn"><strong>残課題:</strong> sm/xl/2xl の 3 段階に集約予定。md/lg/bare の合計 ~50 件を機械置換。</div>
+</section>
+
+<section>
+  <h2 class="text-xl font-bold mb-4">残課題 4: hover red CTA <span class="mark-todo">残課題</span></h2>
+  <p class="meta mb-2">primary CTA hover が red-700/red-600/red-400/red-800 の 4 種混在(EDIT-010 と変化なし)。</p>
+  <div class="warn"><strong>残課題:</strong> light=red-700 / dark=red-400 の 1 ペアに統一。共通 Button コンポーネント新設(残課題 7)と同時実施推奨。</div>
+</section>
+
+<section>
+  <h2 class="text-xl font-bold mb-4">残課題 5: focus ring 色混在 <span class="mark-todo">残課題</span></h2>
+  <div class="compare-grid">
+    <div class="col col-before"><h3>BEFORE</h3>
+      <p class="meta">red-500: 49 / blue-500: 24 / orange: 一部</p></div>
+    <div class="col col-after"><h3>AFTER</h3>
+      <p class="meta">red-500: <strong>49</strong> / blue-500: <strong>24</strong>(完全に変化なし)</p>
+    </div>
+  </div>
+  <div class="warn"><strong>残課題:</strong> red-500 統一 + focus-visible 化(38 件機械置換)。</div>
+</section>
+
+<section>
+  <h2 class="text-xl font-bold mb-4">残課題 6: 共通 Button コンポーネント未整備 <span class="mark-todo">残課題</span></h2>
+  <div class="compare-grid">
+    <div class="col col-before"><h3>BEFORE</h3>
+      <p class="meta">bg-red-600 ベタ書き 189 件、共通 Button 未検出</p></div>
+    <div class="col col-after"><h3>AFTER</h3>
+      <p class="meta">bg-red-600 <strong>188 件</strong>(-1)、共通 Button 未検出(<code>find . -path "*/ui/Button*"</code> = 0)</p>
+    </div>
+  </div>
+  <div class="warn"><strong>残課題(最重要):</strong> launch 後の最大改修候補。<code>&lt;Button variant size&gt;</code> 新設で残課題 4/8 も同時解消。工数 L。</div>
+</section>
+
+<section>
+  <h2 class="text-xl font-bold mb-4">残課題 7: 共通 Modal コンポーネント未整備 <span class="mark-todo">残課題</span></h2>
+  <div class="compare-grid">
+    <div class="col col-before"><h3>BEFORE</h3>
+      <p class="meta">10+ 個別 Modal</p></div>
+    <div class="col col-after"><h3>AFTER</h3>
+      <p class="meta">*Modal.tsx ファイル数 = <strong>20 個</strong>(EDIT-010 から +10、増加傾向)</p>
+      <p class="delta-same mt-1" style="color:#dc2626">悪化傾向(個別実装の追加が継続)</p>
+    </div>
+  </div>
+  <div class="warn"><strong>残課題(高):</strong> Radix Dialog / Headless UI 採用検討。launch 直前は新規 Modal 追加を必須最小限に絞り、launch 後に統合 PR。</div>
+</section>
+
+<section>
+  <h2 class="text-xl font-bold mb-4">残課題 8: dark mode red CTA バリアント <span class="mark-todo">残課題</span></h2>
+  <p class="meta mb-2">dark:bg-red-500 = <strong>69</strong> / dark:bg-red-700 = <strong>37</strong>(EDIT-010 から変化なし)。</p>
+  <div class="warn"><strong>残課題:</strong> dark:bg-red-500 + dark:hover:bg-red-400 に統一(残課題 6 共通 Button 内で吸収)。</div>
+</section>
+
+<section>
+  <h2 class="text-xl font-bold mb-4">残課題 9: 背景色 info/success/warning 系発散 / 残課題 10: テーブル thead 不統一 / 残課題 11: ボーダー zinc-800 残存 <span class="mark-todo">残課題</span></h2>
+  <p class="meta">いずれも EDIT-011 で未着手。Phase 2(launch+1 週間後)で機械置換 PR 1 本にまとめて処理推奨。</p>
+</section>
+
+<!-- Action plan -->
+<section class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-green-600">
+  <h2 class="text-xl font-bold mb-4">推奨アクション順位(launch 後改修案)</h2>
+  <table>
+    <thead><tr><th>Phase</th><th>#</th><th>改修</th><th>工数</th><th>方法</th></tr></thead>
+    <tbody>
+      <tr><td>Phase 1<br>(launch+1w)</td><td>1</td><td>zinc/slate/stone → gray 機械置換</td><td>S</td><td>sed 1 PR</td></tr>
+      <tr><td>Phase 1</td><td>2</td><td>border-zinc-800 → border-gray-800</td><td>S</td><td>同 PR にバンドル</td></tr>
+      <tr><td>Phase 1</td><td>3</td><td>focus:ring-blue-500 → ring-red-500</td><td>S</td><td>同 PR にバンドル</td></tr>
+      <tr><td>Phase 1</td><td>4</td><td>shadow-md/lg/bare → shadow-sm/xl/2xl</td><td>S</td><td>同 PR にバンドル</td></tr>
+      <tr><td>Phase 1</td><td>5</td><td>テーブル thead 統一(bg-gray-50 dark:bg-gray-900 + uppercase)</td><td>S</td><td>同 PR にバンドル</td></tr>
+      <tr><td>Phase 2<br>(launch+2-3w)</td><td>6</td><td>rounded 集約(bare/xl/2xl → lg、3 段階に)</td><td>M</td><td>レビュー要、PR 分割</td></tr>
+      <tr><td>Phase 2</td><td>7</td><td>info/success/warning 系背景色 4 系統集約</td><td>M</td><td>意味論変更を含むためレビュー必須</td></tr>
+      <tr><td>Phase 2</td><td>8</td><td>dark:bg-red-500/700/950 → red-500 統一</td><td>M</td><td>共通 Button 前哨</td></tr>
+      <tr><td>Phase 3<br>(launch+1m)</td><td>9</td><td>共通 &lt;Button variant size&gt; コンポーネント新設</td><td>L</td><td>残課題 4/8 同時解消</td></tr>
+      <tr><td>Phase 3</td><td>10</td><td>共通 &lt;Modal&gt; コンポーネント新設(Radix Dialog 候補)</td><td>L</td><td>20 ファイル統合</td></tr>
+    </tbody>
+  </table>
+  <p class="mt-3 text-sm"><strong>方針:</strong> Phase 1 は機械置換系 1 PR で 5 項目同時解消(リスク極低、launch 後即着手可)。Phase 2 はレビュー必要(中リスク)。Phase 3 はコンポーネント設計(大インパクト、要設計フェーズ)。</p>
+</section>
+
+<footer class="mt-12 pt-6 border-t text-center meta">
+PLT-EDIT-012 design audit after EDIT-011 / generated 2026-04-29 / read-only / source: apps/web/src/ grep + git log
+</footer>
+</body>
+</html>
